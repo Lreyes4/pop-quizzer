@@ -33,21 +33,21 @@ var quizQuestions = [
     }
 ]
 
-var questionEL = document.getElementById("question")
+var questionEl = document.getElementById("question")
 var ans1 = document.getElementById("choice-one")
 var ans2 = document.getElementById("choice-two")
 var ans3 = document.getElementById("choice-three")
-var listEl = document.getElementById("quiz-choices")
-
-
-
-
-//Add a start button
-var startBtn = document.getElementById("start button")
-
-
+var timeEl = document.getElementById("timer")
+var scoreEl = document.getElementById("score")
+var startBtn = document.getElementById("start")
 //Set a timer with an event listener
 var secondsLeft = 60;
+//need a start button with an event listener waiting for user to click it
+var startButton= document.getElementById("start");
+//get quiz text element
+var quizTextEl = document.getElementById("quiz-text");
+var quizIndex = 0 
+var playerScore = 0
 
 function setTime() {
     // Sets interval in variable
@@ -64,47 +64,64 @@ function setTime() {
     }, 1000);
   }
 
-
-
-//need a start button with an event listener waiting for user to click it
-var startButton= document.getElementById("start");
-
-//when button is clicked start the timer
-var timeEl = document.getElementById("timer");
-
-//get quiz text element
-var quizTextEl = document.getElementById("quiz-text");
-
-function startQuiz() {
-    for (let i = 0; i < quizQuestions.length; i++) {
+function askQuestion() {
+    
         // const i = quizQuestions[i].question;
-        questionEL.textContent = quizQuestions[i].question;
-        ans1.textContent = quizQuestions[i].choices[0];
-        ans2.textContent = quizQuestions[i].choices[1];
-        ans3.textContent = quizQuestions[i].choices[2];
-        
-
-        
-    }
+        questionEl.textContent = quizQuestions[quizIndex].question;
+        ans1.textContent = quizQuestions[quizIndex].choices[0];
+        ans2.textContent = quizQuestions[quizIndex].choices[1];
+        ans3.textContent = quizQuestions[quizIndex].choices[2];
+          
 }
+
+        ans1.addEventListener("click", quizListener)   
+        ans2.addEventListener("click", quizListener)  
+        ans3.addEventListener("click", quizListener)
 // 
 startButton.addEventListener("click", function(){
     setTime();
-    startQuiz();
+    startButton.remove()
+    quizTextEl.remove()
+    askQuestion();
+    
 })
 
-listEl.addEventListener("click", function(e){
-    if (e.target === quizQuestions[i].answer) {
-        i++;
+ function quizListener(e){
+    if (e.target.textContent === quizQuestions[quizIndex].answer) {
+        playerScore++
         secondsLeft+=10;
+    } else {
+        secondsLeft-=10;
     }
+    if (quizIndex === quizQuestions.length-1){
+        endGame()
+    }else{
+      quizIndex++  
+      askQuestion()
+    }
+    
+}
 
-}) 
-
-
-//Subtract time from timer when I answer incorrectly
-
-//When all question are answered or if timer reaches zero game is over
-
-//Save my initails and score
+function endGame(){
+    const textEl = document.createElement("p")
+    const inputEl = document.createElement("input")
+    const btnEl = document.createElement("button")
+    textEl.textContent = `Your score: ${playerScore}`
+    btnEl.textContent = "Save score"
+    scoreEl.appendChild(textEl)
+    scoreEl.appendChild(inputEl)
+    scoreEl.appendChild(btnEl)
+    btnEl.addEventListener("click", function(e){
+    const inputValue = inputEl.value
+    const storageObject = {
+        initials: inputValue,
+        score: playerScore
+    }
+    localStorage.setItem("quizScore", JSON.stringify(storageObject))
+    inputEl.remove()
+    btnEl.remove()
+    textEl.textContent = `Your score has been saved!`
+    })
+    
+}
 
